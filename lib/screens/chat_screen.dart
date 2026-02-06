@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import '../agent/ai_chat_service.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -8,68 +11,88 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  final _messageController = TextEditingController();
-  final List<ChatMessage> _messages = [
-    ChatMessage(
-      text: 'Hello! I\'m your AI mental health companion. How can I help you today?',
-      isUser: false,
-      timestamp: DateTime.now().subtract(const Duration(minutes: 5)),
-    ),
-  ];
+  final _controller = TextEditingController();
+  final _ai = AiChatService();
+
+  final List<ChatMessage> _messages = [];
+  final List<String> _history = [];
+
+  late String userFeelingPrompt;
 
   @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
+  void initState() {
+    super.initState();
+
+    final args = Get.arguments ?? {};
+
+    userFeelingPrompt = args['feelingPrompt'] ??
+        'The user wants to talk about their feelings.';
+    final openingMessage = args['openingMessage'] ??
+        'I’m here with you. What’s on your mind?';
+
+    _messages.add(
+      ChatMessage(
+        text: openingMessage,
+        isUser: false,
+        timestamp: DateTime.now(),
+      ),
+    );
   }
 
-  void _sendMessage() {
-    if (_messageController.text.isEmpty) return;
+  Future<void> _send() async {
+    if (_controller.text.trim().isEmpty) return;
+
+    final userText = _controller.text.trim();
+    _controller.clear();
 
     setState(() {
-      _messages.add(
-        ChatMessage(
-          text: _messageController.text,
-          isUser: true,
-          timestamp: DateTime.now(),
-        ),
-      );
+      _messages.add(ChatMessage(
+        text: userText,
+        isUser: true,
+        timestamp: DateTime.now(),
+      ));
     });
 
-    _messageController.clear();
+    _history.add('User: $userText');
 
-    // Simulate AI response
-    Future.delayed(const Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          _messages.add(
-            ChatMessage(
-              text: 'That sounds interesting! Tell me more about how you\'re feeling.',
-              isUser: false,
-              timestamp: DateTime.now(),
-            ),
-          );
-        });
-      }
+    final reply = await _ai.sendMessage(
+      userMessage: userText,
+      feelingPrompt: userFeelingPrompt,
+      history: _history,
+    );
+
+    if (!mounted) return;
+
+    setState(() {
+      _messages.add(ChatMessage(
+        text: reply,
+        isUser: false,
+        timestamp: DateTime.now(),
+      ));
     });
+
+    _history.add('AI: $reply');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFF7F7FA),
       appBar: AppBar(
-        title: const Text('AI Health Companion'),
-        centerTitle: true,
         elevation: 0,
-        flexibleSpace: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFF667EEA),
-                Color(0xFF764BA2),
-              ],
+        backgroundColor: Colors.white,
+        title: const Text(
+          'Chat',
+          style: TextStyle(color: Colors.black),
+        ),
+        centerTitle: false,
+        bottom: const PreferredSize(
+          preferredSize: Size.fromHeight(28),
+          child: Padding(
+            padding: EdgeInsets.only(bottom: 8),
+            child: Text(
+              'A safe space to talk',
+              style: TextStyle(color: Colors.black54, fontSize: 12),
             ),
           ),
         ),
@@ -78,139 +101,131 @@ class _ChatScreenState extends State<ChatScreen> {
         children: [
           Expanded(
             child: ListView.builder(
+              reverse: true,
               padding: const EdgeInsets.all(16),
               itemCount: _messages.length,
-              reverse: true,
-              itemBuilder: (context, index) {
-                final message = _messages[_messages.length - 1 - index];
-                return Padding(
-                  padding: const EdgeInsets.only(bottom: 16),
-                  child: _buildMessageBubble(message),
-                );
+              itemBuilder: (_, i) {
+                final msg = _messages[_messages.length - 1 - i];
+                return _chatBubble(msg);
               },
             ),
           ),
-          Container(
-            decoration: BoxDecoration(
-              color: Colors.white,
-              border: Border(
-                top: BorderSide(
-                  color: Colors.grey[200]!,
-                ),
-              ),
-            ),
-            padding: const EdgeInsets.all(16),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF667EEA).withValues(alpha: 0.08),
-                      borderRadius: BorderRadius.circular(24),
-                    ),
-                    child: TextField(
-                      controller: _messageController,
-                      decoration: InputDecoration(
-                        hintText: 'Type a message...',
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 12,
-                        ),
-                        hintStyle: TextStyle(
-                          color: Colors.grey[400],
-                        ),
-                      ),
-                      maxLines: null,
-                      textCapitalization: TextCapitalization.sentences,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12),
-                GestureDetector(
-                  onTap: _sendMessage,
-                  child: Container(
-                    width: 48,
-                    height: 48,
-                    decoration: const BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [
-                          Color(0xFF667EEA),
-                          Color(0xFF764BA2),
-                        ],
-                      ),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.send,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
+          _input(),
         ],
       ),
     );
   }
 
-  Widget _buildMessageBubble(ChatMessage message) {
-    return Row(
-      mainAxisAlignment:
-          message.isUser ? MainAxisAlignment.end : MainAxisAlignment.start,
-      children: [
-        if (!message.isUser)
+  Widget _chatBubble(ChatMessage msg) {
+    final isUser = msg.isUser;
+
+    return Align(
+      alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
+      child: Column(
+        crossAxisAlignment:
+        isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+        children: [
           Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF667EEA),
-            ),
-            child: const Icon(
-              Icons.favorite,
-              size: 16,
-              color: Colors.white,
-            ),
-          ),
-        if (!message.isUser) const SizedBox(width: 12),
-        Flexible(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            margin: const EdgeInsets.only(bottom: 4),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            constraints: const BoxConstraints(maxWidth: 320),
             decoration: BoxDecoration(
-              color: message.isUser
-                  ? const Color(0xFF667EEA)
-                  : Colors.grey[200],
-              borderRadius: BorderRadius.circular(16),
+              color: isUser
+                  ? Colors.deepPurple
+                  : Colors.white,
+              borderRadius: BorderRadius.only(
+                topLeft: const Radius.circular(18),
+                topRight: const Radius.circular(18),
+                bottomLeft:
+                isUser ? const Radius.circular(18) : Radius.zero,
+                bottomRight:
+                isUser ? Radius.zero : const Radius.circular(18),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.05),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                )
+              ],
             ),
             child: Text(
-              message.text,
+              msg.text,
               style: TextStyle(
-                color: message.isUser ? Colors.white : Colors.black87,
-                fontSize: 14,
+                color: isUser ? Colors.white : Colors.black87,
+                fontSize: 15,
+                height: 1.4,
               ),
             ),
           ),
-        ),
-        if (message.isUser) const SizedBox(width: 12),
-        if (message.isUser)
-          Container(
-            width: 32,
-            height: 32,
-            decoration: const BoxDecoration(
-              shape: BoxShape.circle,
-              color: Color(0xFF764BA2),
-            ),
-            child: const Icon(
-              Icons.person,
-              size: 16,
-              color: Colors.white,
+          Text(
+            _formatTime(msg.timestamp),
+            style: const TextStyle(
+              fontSize: 10,
+              color: Colors.black45,
             ),
           ),
-      ],
+          const SizedBox(height: 8),
+        ],
+      ),
     );
+  }
+
+  Widget _input() {
+    return SafeArea(
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12),
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: Colors.black.withOpacity(0.06),
+                blurRadius: 10,
+              ),
+            ],
+          ),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _controller,
+                  maxLines: null,
+                  decoration: const InputDecoration(
+                    hintText: 'Type your message…',
+                    border: InputBorder.none,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              GestureDetector(
+                onTap: _send,
+                child: Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: const BoxDecoration(
+                    color: Colors.deepPurple,
+                    shape: BoxShape.circle,
+                  ),
+                  child: const Icon(
+                    Icons.send,
+                    color: Colors.white,
+                    size: 20,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  String _formatTime(DateTime time) {
+    final h = time.hour.toString().padLeft(2, '0');
+    final m = time.minute.toString().padLeft(2, '0');
+    return '$h:$m';
   }
 }
 
@@ -225,4 +240,3 @@ class ChatMessage {
     required this.timestamp,
   });
 }
-

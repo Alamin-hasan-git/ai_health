@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -20,6 +21,8 @@ class _LoginScreenState extends State<LoginScreen>
 
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -50,24 +53,55 @@ class _LoginScreenState extends State<LoginScreen>
     super.dispose();
   }
 
-  void _handleLogin() {
+  Future<void> _handleLogin() async {
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
-
-      // Simulate login process
-      Future.delayed(const Duration(seconds: 2), () {
+      try {
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
+        final userCredential = await _auth.signInWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+        setState(() => _isLoading = false);
+        if (userCredential.user != null) {
+          Get.snackbar(
+            'Success',
+            'Logged in successfully!',
+            snackPosition: SnackPosition.BOTTOM,
+            backgroundColor: Colors.green.withOpacity(0.85),
+            colorText: Colors.white,
+            duration: const Duration(seconds: 2),
+          );
+          Get.offNamed('/home');
+        }
+      } on FirebaseAuthException catch (e) {
+        setState(() => _isLoading = false);
+        String message = 'Login failed. Please try again.';
+        if (e.code == 'user-not-found') {
+          message = 'No user found for that email.';
+        } else if (e.code == 'wrong-password') {
+          message = 'Incorrect password provided.';
+        }
+        Get.snackbar(
+          'Error',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.85),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      } catch (e) {
         setState(() => _isLoading = false);
         Get.snackbar(
-          'Success',
-          'Logged in successfully!',
+          'Error',
+          'An unexpected error occurred',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          backgroundColor: Colors.red.withOpacity(0.85),
           colorText: Colors.white,
-          duration: const Duration(seconds: 2),
+          duration: const Duration(seconds: 3),
         );
-        // Navigate to home screen
-        Get.offNamed('/home');
-      });
+      }
     }
   }
 
@@ -80,8 +114,8 @@ class _LoginScreenState extends State<LoginScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF667EEA).withValues(alpha: 0.1),
-              const Color(0xFF764BA2).withValues(alpha: 0.05),
+              const Color(0xFF667EEA).withOpacity(0.1),
+              const Color(0xFF764BA2).withOpacity(0.05),
             ],
           ),
         ),
@@ -110,12 +144,12 @@ class _LoginScreenState extends State<LoginScreen>
                             end: Alignment.bottomRight,
                             colors: [
                               Colors.white,
-                              Colors.white.withValues(alpha: 0.95),
+                              Colors.white.withOpacity(0.95),
                             ],
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF667EEA).withValues(alpha: 0.3),
+                              color: const Color(0xFF667EEA).withOpacity(0.3),
                               blurRadius: 20,
                               offset: const Offset(0, 10),
                             ),
@@ -207,12 +241,27 @@ class _LoginScreenState extends State<LoginScreen>
                             Align(
                               alignment: Alignment.centerRight,
                               child: GestureDetector(
-                                onTap: () {
-                                  Get.snackbar(
-                                    'Password Reset',
-                                    'Check your email for reset instructions',
-                                    snackPosition: SnackPosition.BOTTOM,
-                                  );
+                                onTap: () async {
+                                  final email = _emailController.text.trim();
+                                  if (email.isEmpty) {
+                                    Get.snackbar(
+                                      'Email required',
+                                      'Please enter your email to reset password',
+                                      snackPosition: SnackPosition.BOTTOM,
+                                    );
+                                    return;
+                                  }
+                                  try {
+                                    await _auth.sendPasswordResetEmail(email: email);
+                                    Get.snackbar(
+                                      'Password Reset',
+                                      'Password reset email sent',
+                                      snackPosition: SnackPosition.BOTTOM,
+                                      duration: const Duration(seconds: 3),
+                                    );
+                                  } on FirebaseAuthException catch (e) {
+                                    Get.snackbar('Error', e.message ?? 'Failed to send reset email', snackPosition: SnackPosition.BOTTOM);
+                                  }
                                 },
                                 child: const Text(
                                   'Forgot Password?',
@@ -245,7 +294,7 @@ class _LoginScreenState extends State<LoginScreen>
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF667EEA).withValues(alpha: 0.3),
+                                      color: const Color(0xFF667EEA).withOpacity(0.3),
                                       blurRadius: 20,
                                       offset: const Offset(0, 10),
                                     ),
@@ -411,7 +460,7 @@ class _LoginScreenState extends State<LoginScreen>
             ),
             prefixIcon: Icon(
               icon,
-              color: const Color(0xFF667EEA).withValues(alpha: 0.6),
+              color: const Color(0xFF667EEA).withOpacity(0.6),
               size: 20,
             ),
             suffixIcon: suffixIcon != null
@@ -421,7 +470,7 @@ class _LoginScreenState extends State<LoginScreen>
             )
                 : null,
             filled: true,
-            fillColor: const Color(0xFF667EEA).withValues(alpha: 0.08),
+            fillColor: const Color(0xFF667EEA).withOpacity(0.08),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

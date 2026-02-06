@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -24,6 +25,8 @@ class _RegisterScreenState extends State<RegisterScreen>
 
   final _formKey = GlobalKey<FormState>();
   bool _isLoading = false;
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
   @override
   void initState() {
@@ -58,14 +61,14 @@ class _RegisterScreenState extends State<RegisterScreen>
     super.dispose();
   }
 
-  void _handleRegister() {
+  Future<void> _handleRegister() async {
     if (_formKey.currentState!.validate()) {
       if (!_agreeToTerms.value) {
         Get.snackbar(
           'Terms Required',
           'Please agree to terms and conditions',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.red.withValues(alpha: 0.8),
+          backgroundColor: Colors.red.withOpacity(0.85),
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
         );
@@ -74,20 +77,56 @@ class _RegisterScreenState extends State<RegisterScreen>
 
       setState(() => _isLoading = true);
 
-      // Simulate registration process
-      Future.delayed(const Duration(seconds: 2), () {
+      try {
+        final email = _emailController.text.trim();
+        final password = _passwordController.text;
+        final userCredential = await _auth.createUserWithEmailAndPassword(
+          email: email,
+          password: password,
+        );
+
+        // Optionally update display name
+        if (userCredential.user != null && _fullNameController.text.isNotEmpty) {
+          await userCredential.user!.updateDisplayName(_fullNameController.text.trim());
+        }
+
         setState(() => _isLoading = false);
         Get.snackbar(
           'Success',
           'Account created successfully!',
           snackPosition: SnackPosition.BOTTOM,
-          backgroundColor: Colors.green.withValues(alpha: 0.8),
+          backgroundColor: Colors.green.withOpacity(0.85),
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
         );
-        // Navigate to next screen
         Get.offNamed('/home');
-      });
+      } on FirebaseAuthException catch (e) {
+        setState(() => _isLoading = false);
+        String message = 'Registration failed. Please try again.';
+        if (e.code == 'email-already-in-use') {
+          message = 'The account already exists for that email.';
+        } else if (e.code == 'weak-password') {
+          message = 'The password provided is too weak.';
+        }
+        Get.snackbar(
+          'Error',
+          message,
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.85),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      } catch (e) {
+        setState(() => _isLoading = false);
+        Get.snackbar(
+          'Error',
+          'An unexpected error occurred',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.red.withOpacity(0.85),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 3),
+        );
+      }
     }
   }
 
@@ -100,8 +139,8 @@ class _RegisterScreenState extends State<RegisterScreen>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              const Color(0xFF667EEA).withValues(alpha: 0.1),
-              const Color(0xFF764BA2).withValues(alpha: 0.05),
+              const Color(0xFF667EEA).withOpacity(0.1),
+              const Color(0xFF764BA2).withOpacity(0.05),
             ],
           ),
         ),
@@ -126,7 +165,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                           height: 45,
                           decoration: BoxDecoration(
                             shape: BoxShape.circle,
-                            color: const Color(0xFF667EEA).withValues(alpha: 0.15),
+                            color: const Color(0xFF667EEA).withOpacity(0.15),
                           ),
                           child: const Icon(
                             Icons.arrow_back_ios_new,
@@ -364,7 +403,7 @@ class _RegisterScreenState extends State<RegisterScreen>
                                   borderRadius: BorderRadius.circular(12),
                                   boxShadow: [
                                     BoxShadow(
-                                      color: const Color(0xFF667EEA).withValues(alpha: 0.3),
+                                      color: const Color(0xFF667EEA).withOpacity(0.3),
                                       blurRadius: 20,
                                       offset: const Offset(0, 10),
                                     ),
@@ -474,7 +513,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             ),
             prefixIcon: Icon(
               icon,
-              color: const Color(0xFF667EEA).withValues(alpha: 0.6),
+              color: const Color(0xFF667EEA).withOpacity(0.6),
               size: 20,
             ),
             suffixIcon: suffixIcon != null
@@ -484,7 +523,7 @@ class _RegisterScreenState extends State<RegisterScreen>
             )
                 : null,
             filled: true,
-            fillColor: const Color(0xFF667EEA).withValues(alpha: 0.08),
+            fillColor: const Color(0xFF667EEA).withOpacity(0.08),
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,

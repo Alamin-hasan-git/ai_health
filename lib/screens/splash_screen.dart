@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
-
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:get/get_core/src/get_main.dart';
 import 'package:get/get_navigation/src/extension_navigation.dart';
 
@@ -27,23 +28,20 @@ class _SplashScreenState extends State<SplashScreen>
       vsync: this,
     );
 
-    // Fade animation for overall content
+    // ...existing animations setup...
     _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeIn),
     );
 
-    // Slide animation for upward movement
     _slideAnimation = Tween<Offset>(begin: const Offset(0, 0.5), end: Offset.zero)
         .animate(
       CurvedAnimation(parent: _animationController, curve: Curves.easeOut),
     );
 
-    // Scale animation for logo
     _scaleAnimation = Tween<double>(begin: 0.5, end: 1.0).animate(
       CurvedAnimation(parent: _animationController, curve: Curves.elasticOut),
     );
 
-    // Pulse animation for heartbeat effect
     _pulseAnimation = Tween<double>(begin: 1.0, end: 1.1).animate(
       CurvedAnimation(
         parent: _animationController,
@@ -53,10 +51,55 @@ class _SplashScreenState extends State<SplashScreen>
 
     _animationController.forward();
 
-    // Navigate after splash duration
-    Timer(const Duration(seconds: 4), () {
-      Get.offNamed('/login');
+    // Smart navigation based on auth state and assessment completion
+    Timer(const Duration(seconds: 4), () async {
+      _navigateBasedOnAuthState();
     });
+  }
+
+  Future<void> _navigateBasedOnAuthState() async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+
+      if (user == null) {
+        // No user logged in → go to login
+        if (mounted) {
+          Get.offNamed('/login');
+        }
+        return;
+      }
+
+      // User is logged in → check if they completed initial assessment
+      try {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+
+        final assessmentCompleted =
+            userDoc.exists && (userDoc.data()?['assessment_completed'] ?? false) == true;
+
+        if (mounted) {
+          if (assessmentCompleted) {
+            // They've done the initial assessment → go to home
+            Get.offNamed('/home');
+          } else {
+            // First time login → show questions
+            Get.offNamed('/questions');
+          }
+        }
+      } catch (e) {
+        // On error, default to questions (first time safe path)
+        if (mounted) {
+          Get.offNamed('/questions');
+        }
+      }
+    } catch (e) {
+      // Fallback to login if anything goes wrong
+      if (mounted) {
+        Get.offNamed('/login');
+      }
+    }
   }
 
   @override
@@ -88,7 +131,6 @@ class _SplashScreenState extends State<SplashScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Animated Logo/Icon with pulse effect
                   ScaleTransition(
                     scale: _scaleAnimation,
                     child: Container(
@@ -235,7 +277,9 @@ class _SplashScreenState extends State<SplashScreen>
                       ),
                     ),
                   ),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 40),
+
+
                 ],
               ),
             ),

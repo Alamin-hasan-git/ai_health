@@ -7,7 +7,8 @@ import '../screens/home_screen.dart';
 import '../screens/chat_screen.dart';
 import '../screens/settings_screen.dart';
 import '../screens/progress_screen.dart';
-import '../screens/meditation_screen.dart';
+import '../screens/community_chat.dart';
+import '../screens/question_screen.dart';
 
 class AppRoute {
   static const String initial = '/';
@@ -17,7 +18,8 @@ class AppRoute {
   static const String chat = '/chat';
   static const String settings = '/settings';
   static const String progress = '/progress';
-  static const String meditation = '/meditation';
+  static const String community_chat = '/community_chat';
+  static const String questions = '/questions';
 
   static final routes = [
     GetPage(
@@ -43,6 +45,12 @@ class AppRoute {
       transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
+      name: questions,
+      page: () => const QuestionScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
       name: chat,
       page: () => const ChatScreen(),
       transition: Transition.rightToLeft,
@@ -61,8 +69,8 @@ class AppRoute {
       transitionDuration: const Duration(milliseconds: 300),
     ),
     GetPage(
-      name: meditation,
-      page: () => const MeditationScreen(),
+      name: community_chat,
+      page: () => const CommunityChat(roomId: 'global'),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 300),
     ),
