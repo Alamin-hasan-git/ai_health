@@ -1,4 +1,5 @@
 import 'package:ai_health/routes/routes.dart';
+import 'package:ai_health/widgets/get_meme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import '../models/mood_config.dart';
@@ -20,18 +21,20 @@ class _HomeScreenState extends State<HomeScreen> {
         children: [
           _buildHeader(context),
           Expanded(
-            child: SingleChildScrollView(
+            child: ListView(
               padding: const EdgeInsets.all(24),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildMoodCard(context),
                   const SizedBox(height: 24),
                   _buildFeatures(context),
+                  const SizedBox(height: 24),
+                  Text('Need a laugh? Check out these memes!', style: Theme.of(context).textTheme.titleMedium),
+                  const SizedBox(height: 16),
+                  MemeListPage()
                 ],
+
               ),
             ),
-          ),
         ],
       ),
       bottomNavigationBar: SafeArea(
