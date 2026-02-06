@@ -17,18 +17,17 @@ class _ChatScreenState extends State<ChatScreen> {
   final List<ChatMessage> _messages = [];
   final List<String> _history = [];
 
-  late String userFeelingPrompt;
+  late String moodKey;
 
   @override
   void initState() {
     super.initState();
 
     final args = Get.arguments ?? {};
+    moodKey = args['moodKey'] ?? 'Sad';
 
-    userFeelingPrompt = args['feelingPrompt'] ??
-        'The user wants to talk about their feelings.';
-    final openingMessage = args['openingMessage'] ??
-        'I’m here with you. What’s on your mind?';
+    final openingMessage =
+        args['openingMessage'] ?? 'I’m here with you. What’s on your mind?';
 
     _messages.add(
       ChatMessage(
@@ -46,29 +45,33 @@ class _ChatScreenState extends State<ChatScreen> {
     _controller.clear();
 
     setState(() {
-      _messages.add(ChatMessage(
-        text: userText,
-        isUser: true,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(
+          text: userText,
+          isUser: true,
+          timestamp: DateTime.now(),
+        ),
+      );
     });
 
     _history.add('User: $userText');
 
     final reply = await _ai.sendMessage(
       userMessage: userText,
-      feelingPrompt: userFeelingPrompt,
+      moodKey: moodKey,
       history: _history,
     );
 
     if (!mounted) return;
 
     setState(() {
-      _messages.add(ChatMessage(
-        text: reply,
-        isUser: false,
-        timestamp: DateTime.now(),
-      ));
+      _messages.add(
+        ChatMessage(
+          text: reply,
+          isUser: false,
+          timestamp: DateTime.now(),
+        ),
+      );
     });
 
     _history.add('AI: $reply');
@@ -77,22 +80,28 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF7F7FA),
+      backgroundColor: const Color(0xFFF6F7FB),
       appBar: AppBar(
         elevation: 0,
         backgroundColor: Colors.white,
         title: const Text(
           'Chat',
-          style: TextStyle(color: Colors.black),
+          style: TextStyle(
+            color: Colors.black87,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: false,
         bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(28),
+          preferredSize: Size.fromHeight(26),
           child: Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
               'A safe space to talk',
-              style: TextStyle(color: Colors.black54, fontSize: 12),
+              style: TextStyle(
+                color: Colors.black45,
+                fontSize: 12,
+              ),
             ),
           ),
         ),
@@ -102,7 +111,7 @@ class _ChatScreenState extends State<ChatScreen> {
           Expanded(
             child: ListView.builder(
               reverse: true,
-              padding: const EdgeInsets.all(16),
+              padding: const EdgeInsets.fromLTRB(16, 20, 16, 12),
               itemCount: _messages.length,
               itemBuilder: (_, i) {
                 final msg = _messages[_messages.length - 1 - i];
@@ -121,69 +130,70 @@ class _ChatScreenState extends State<ChatScreen> {
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
-      child: Column(
-        crossAxisAlignment:
-        isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
-        children: [
-          Container(
-            margin: const EdgeInsets.only(bottom: 4),
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
-            constraints: const BoxConstraints(maxWidth: 320),
-            decoration: BoxDecoration(
-              color: isUser
-                  ? Colors.deepPurple
-                  : Colors.white,
-              borderRadius: BorderRadius.only(
-                topLeft: const Radius.circular(18),
-                topRight: const Radius.circular(18),
-                bottomLeft:
-                isUser ? const Radius.circular(18) : Radius.zero,
-                bottomRight:
-                isUser ? Radius.zero : const Radius.circular(18),
+      child: Padding(
+        padding: const EdgeInsets.only(bottom: 14),
+        child: Column(
+          crossAxisAlignment:
+          isUser ? CrossAxisAlignment.end : CrossAxisAlignment.start,
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+              constraints: const BoxConstraints(maxWidth: 330),
+              decoration: BoxDecoration(
+                color: isUser ? Colors.deepPurple : Colors.white,
+                borderRadius: BorderRadius.only(
+                  topLeft: const Radius.circular(20),
+                  topRight: const Radius.circular(20),
+                  bottomLeft:
+                  isUser ? const Radius.circular(20) : const Radius.circular(6),
+                  bottomRight:
+                  isUser ? const Radius.circular(6) : const Radius.circular(20),
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.04),
+                    blurRadius: 8,
+                    offset: const Offset(0, 3),
+                  ),
+                ],
               ),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 6,
-                  offset: const Offset(0, 2),
-                )
-              ],
-            ),
-            child: Text(
-              msg.text,
-              style: TextStyle(
-                color: isUser ? Colors.white : Colors.black87,
-                fontSize: 15,
-                height: 1.4,
+              child: Text(
+                msg.text,
+                style: TextStyle(
+                  color: isUser ? Colors.white : Colors.black87,
+                  fontSize: 15.5,
+                  height: 1.45,
+                ),
               ),
             ),
-          ),
-          Text(
-            _formatTime(msg.timestamp),
-            style: const TextStyle(
-              fontSize: 10,
-              color: Colors.black45,
+            const SizedBox(height: 4),
+            Text(
+              _formatTime(msg.timestamp),
+              style: const TextStyle(
+                fontSize: 10,
+                color: Colors.black38,
+              ),
             ),
-          ),
-          const SizedBox(height: 8),
-        ],
+          ],
+        ),
       ),
     );
   }
 
   Widget _input() {
     return SafeArea(
+      top: false,
       child: Padding(
         padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
         child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12),
+          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
             color: Colors.white,
-            borderRadius: BorderRadius.circular(24),
+            borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.06),
-                blurRadius: 10,
+                blurRadius: 12,
               ),
             ],
           ),
@@ -195,21 +205,22 @@ class _ChatScreenState extends State<ChatScreen> {
                   maxLines: null,
                   decoration: const InputDecoration(
                     hintText: 'Type your message…',
+                    hintStyle: TextStyle(color: Colors.black38),
                     border: InputBorder.none,
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
+              const SizedBox(width: 6),
               GestureDetector(
                 onTap: _send,
                 child: Container(
-                  padding: const EdgeInsets.all(10),
+                  padding: const EdgeInsets.all(11),
                   decoration: const BoxDecoration(
                     color: Colors.deepPurple,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(
-                    Icons.send,
+                    Icons.send_rounded,
                     color: Colors.white,
                     size: 20,
                   ),

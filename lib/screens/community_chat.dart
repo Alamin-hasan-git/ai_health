@@ -33,7 +33,16 @@ class _CommunityChatState extends State<CommunityChat> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Global Chat')),
+      backgroundColor: const Color(0xFFF3F4F8),
+      appBar: AppBar(
+        title: const Text(
+          'Community',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0.5,
+      ),
       body: Column(
         children: [
           Expanded(
@@ -52,7 +61,7 @@ class _CommunityChatState extends State<CommunityChat> {
                 final docs = snapshot.data!.docs;
 
                 return ListView.builder(
-                  padding: const EdgeInsets.all(8),
+                  padding: const EdgeInsets.fromLTRB(12, 16, 12, 16),
                   itemCount: docs.length,
                   itemBuilder: (context, index) {
                     final data = docs[index];
@@ -62,18 +71,36 @@ class _CommunityChatState extends State<CommunityChat> {
                       alignment:
                       isMe ? Alignment.centerRight : Alignment.centerLeft,
                       child: Container(
-                        margin: const EdgeInsets.symmetric(vertical: 4),
-                        padding: const EdgeInsets.all(10),
+                        constraints: const BoxConstraints(maxWidth: 280),
+                        margin: const EdgeInsets.symmetric(vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: isMe
-                              ? Colors.blueAccent
-                              : Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(12),
+                              ? Colors.black
+                              : Colors.white,
+                          borderRadius: BorderRadius.only(
+                            topLeft: const Radius.circular(18),
+                            topRight: const Radius.circular(18),
+                            bottomLeft: Radius.circular(isMe ? 18 : 4),
+                            bottomRight: Radius.circular(isMe ? 4 : 18),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 10,
+                              offset: const Offset(0, 4),
+                            ),
+                          ],
                         ),
                         child: Text(
                           data['text'],
                           style: TextStyle(
-                            color: isMe ? Colors.white : Colors.black,
+                            color: isMe ? Colors.white : Colors.black87,
+                            fontSize: 14.5,
+                            height: 1.4,
                           ),
                         ),
                       ),
@@ -83,24 +110,59 @@ class _CommunityChatState extends State<CommunityChat> {
               },
             ),
           ),
-          const Divider(height: 1),
-          Row(
-            children: [
-              Expanded(
-                child: TextField(
-                  controller: _controller,
-                  decoration: const InputDecoration(
-                    contentPadding: EdgeInsets.all(12),
-                    hintText: 'Type a message...',
-                    border: InputBorder.none,
+
+          // ───────────── INPUT BAR ─────────────
+
+          Container(
+            padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 12,
+                  offset: const Offset(0, -2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 14),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFF1F2F6),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    child: TextField(
+                      controller: _controller,
+                      minLines: 1,
+                      maxLines: 4,
+                      decoration: const InputDecoration(
+                        hintText: 'Type a message…',
+                        border: InputBorder.none,
+                      ),
+                    ),
                   ),
                 ),
-              ),
-              IconButton(
-                icon: const Icon(Icons.send),
-                onPressed: sendMessage,
-              ),
-            ],
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: sendMessage,
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.black,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.send_rounded,
+                      color: Colors.white,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ],
       ),

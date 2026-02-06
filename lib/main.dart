@@ -1,3 +1,4 @@
+import 'package:ai_health/controller/journal_controller.dart';
 import 'package:ai_health/screens/splash_screen.dart';
 import 'package:ai_health/routes/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -16,6 +17,7 @@ void main() async {
   print(FirebaseAuth.instance.currentUser);
 
   Get.lazyPut(AssessmentController.new, fenix: true);
+  Get.lazyPut(JournalController.new, fenix: true);
   runApp(const MyApp());
 }
 

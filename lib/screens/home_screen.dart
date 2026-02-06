@@ -2,6 +2,7 @@ import 'package:ai_health/routes/routes.dart';
 import 'package:ai_health/widgets/get_meme.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
 import '../models/mood_config.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -23,18 +24,20 @@ class _HomeScreenState extends State<HomeScreen> {
           Expanded(
             child: ListView(
               padding: const EdgeInsets.all(24),
-                children: [
-                  _buildMoodCard(context),
-                  const SizedBox(height: 24),
-                  _buildFeatures(context),
-                  const SizedBox(height: 24),
-                  Text('Need a laugh? Check out these memes!', style: Theme.of(context).textTheme.titleMedium),
-                  const SizedBox(height: 16),
-                  MemeListPage()
-                ],
-
-              ),
+              children: [
+                _buildMoodCard(context),
+                const SizedBox(height: 24),
+                _buildFeatures(context),
+                const SizedBox(height: 24),
+                Text(
+                  'Need a laugh? Check out these memes!',
+                  style: Theme.of(context).textTheme.titleMedium,
+                ),
+                const SizedBox(height: 16),
+                const MemeListPage(),
+              ],
             ),
+          ),
         ],
       ),
       bottomNavigationBar: SafeArea(
@@ -42,7 +45,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildHeader(BuildContext context) {
     return Container(
@@ -67,7 +69,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildMoodCard(BuildContext context) {
     return Container(
@@ -107,7 +108,7 @@ class _HomeScreenState extends State<HomeScreen> {
         Get.toNamed(
           '/chat',
           arguments: {
-            'feelingPrompt': mood.feelingPrompt,
+            'moodKey': label,
             'openingMessage': mood.openingMessage,
           },
         );
@@ -122,7 +123,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   Widget _buildFeatures(BuildContext context) {
     return GridView.count(
       shrinkWrap: true,
@@ -132,9 +132,12 @@ class _HomeScreenState extends State<HomeScreen> {
       crossAxisSpacing: 16,
       children: [
         _feature(Icons.chat, 'AI Chat', () => Get.toNamed('/chat')),
-        _feature(Icons.bar_chart, 'Progress', () => Get.toNamed(AppRoute.progress)),
-        _feature(Icons.wechat_outlined, 'Community Chat', () => Get.toNamed(AppRoute.community_chat)),
-        _feature(Icons.favorite, 'Wellness', () => Get.toNamed('/wellness')),
+        _feature(Icons.bar_chart, 'Progress',
+                () => Get.toNamed(AppRoute.progress)),
+        _feature(Icons.wechat_outlined, 'Community Chat',
+                () => Get.toNamed(AppRoute.community_chat)),
+        _feature(Icons.book, 'Journal',
+                () => Get.toNamed(AppRoute.journal)),
       ],
     );
   }
@@ -158,7 +161,6 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
     );
   }
-
 
   Widget _buildBottomNav() {
     return BottomNavigationBar(

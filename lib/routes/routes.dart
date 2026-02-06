@@ -1,3 +1,4 @@
+import 'package:ai_health/screens/journal.dart';
 import 'package:get/get.dart';
 
 import '../screens/splash_screen.dart';
@@ -20,12 +21,10 @@ class AppRoute {
   static const String progress = '/progress';
   static const String community_chat = '/community_chat';
   static const String questions = '/questions';
+  static const String journal = '/journal';
 
   static final routes = [
-    GetPage(
-      name: initial,
-      page: () => const SplashScreen(),
-    ),
+    GetPage(name: initial, page: () => const SplashScreen()),
     GetPage(
       name: login,
       page: () => const LoginScreen(),
@@ -71,6 +70,12 @@ class AppRoute {
     GetPage(
       name: community_chat,
       page: () => const CommunityChat(roomId: 'global'),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: journal,
+      page: () => JournalScreen(),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 300),
     ),
