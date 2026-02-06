@@ -9,7 +9,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _notificationsEnabled = true;
   bool _darkModeEnabled = false;
 
   @override
@@ -32,178 +31,84 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            // Account Section
-            _buildSection(
-              'Account',
-              [
-                _buildSettingItem(
-                  icon: Icons.person,
-                  title: 'Profile',
-                  subtitle: 'Edit your profile',
-                  onTap: () => Get.snackbar('Profile', 'Profile settings coming soon'),
-                ),
-                _buildSettingItem(
-                  icon: Icons.security,
-                  title: 'Security',
-                  subtitle: 'Change password',
-                  onTap: () => Get.snackbar('Security', 'Security settings coming soon'),
-                ),
-                _buildSettingItem(
-                  icon: Icons.privacy_tip,
-                  title: 'Privacy',
-                  subtitle: 'Manage privacy settings',
-                  onTap: () => Get.snackbar('Privacy', 'Privacy settings coming soon'),
-                ),
-              ],
-            ),
+      body: Column(
+        children: [
+          // Profile
+          _buildSettingItem(
+            icon: Icons.person,
+            title: 'Profile',
+            subtitle: 'View or edit your profile',
+            onTap: () =>
+                Get.snackbar('Profile', 'Profile settings coming soon'),
+          ),
 
-            // Notifications Section
-            _buildSection(
-              'Notifications',
-              [
-                _buildToggleItem(
-                  icon: Icons.notifications,
-                  title: 'Notifications',
-                  subtitle: 'Enable push notifications',
-                  value: _notificationsEnabled,
-                  onChanged: (value) {
-                    setState(() => _notificationsEnabled = value);
-                  },
-                ),
-                _buildSettingItem(
-                  icon: Icons.alarm,
-                  title: 'Reminders',
-                  subtitle: 'Set daily reminders',
-                  onTap: () => Get.snackbar('Reminders', 'Reminder settings coming soon'),
-                ),
-              ],
-            ),
+          // Dark Mode
+          _buildToggleItem(
+            icon: Icons.dark_mode,
+            title: 'Dark Mode',
+            subtitle: 'Enable dark theme',
+            value: _darkModeEnabled,
+            onChanged: (value) {
+              setState(() => _darkModeEnabled = value);
+            },
+          ),
 
-            // Preferences Section
-            _buildSection(
-              'Preferences',
-              [
-                _buildToggleItem(
-                  icon: Icons.dark_mode,
-                  title: 'Dark Mode',
-                  subtitle: 'Enable dark theme',
-                  value: _darkModeEnabled,
-                  onChanged: (value) {
-                    setState(() => _darkModeEnabled = value);
-                  },
-                ),
-                _buildSettingItem(
-                  icon: Icons.language,
-                  title: 'Language',
-                  subtitle: 'English',
-                  onTap: () => Get.snackbar('Language', 'Language settings coming soon'),
-                ),
-              ],
-            ),
+          const Spacer(),
 
-            // About Section
-            _buildSection(
-              'About',
-              [
-                _buildSettingItem(
-                  icon: Icons.info,
-                  title: 'About AI Health',
-                  subtitle: 'Version 1.0.0',
-                  onTap: () => Get.snackbar('About', 'AI Health - Your mental health companion'),
-                ),
-                _buildSettingItem(
-                  icon: Icons.description,
-                  title: 'Terms & Conditions',
-                  subtitle: 'Read our terms',
-                  onTap: () => Get.snackbar('Terms', 'Opening terms and conditions'),
-                ),
-                _buildSettingItem(
-                  icon: Icons.security,
-                  title: 'Privacy Policy',
-                  subtitle: 'Read our privacy policy',
-                  onTap: () => Get.snackbar('Privacy', 'Opening privacy policy'),
-                ),
-              ],
-            ),
-
-            // Logout Button
-            Padding(
-              padding: const EdgeInsets.all(24.0),
-              child: GestureDetector(
-                onTap: () {
-                  Get.dialog(
-                    AlertDialog(
-                      title: const Text('Logout'),
-                      content: const Text('Are you sure you want to logout?'),
-                      actions: [
-                        TextButton(
-                          onPressed: () => Get.back(),
-                          child: const Text('Cancel'),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Get.back(); // Close dialog
-                            Get.offNamed('/login');
-                          },
-                          child: const Text(
-                            'Logout',
-                            style: TextStyle(color: Colors.red),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.red.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(
-                      color: Colors.red.withValues(alpha: 0.3),
-                    ),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Logout',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
+          // Logout
+          Padding(
+            padding: const EdgeInsets.all(24.0),
+            child: GestureDetector(
+              onTap: () {
+                Get.dialog(
+                  AlertDialog(
+                    title: const Text('Logout'),
+                    content:
+                    const Text('Are you sure you want to logout?'),
+                    actions: [
+                      TextButton(
+                        onPressed: () => Get.back(),
+                        child: const Text('Cancel'),
                       ),
+                      TextButton(
+                        onPressed: () {
+                          Get.back();
+                          Get.offNamed('/login');
+                        },
+                        child: const Text(
+                          'Logout',
+                          style: TextStyle(color: Colors.red),
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(vertical: 16),
+                decoration: BoxDecoration(
+                  color: Colors.red.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(
+                    color: Colors.red.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: const Center(
+                  child: Text(
+                    'Logout',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _buildSection(String title, List<Widget> items) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(24, 24, 24, 12),
-          child: Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: Color(0xFF667EEA),
-              letterSpacing: 0.5,
-            ),
           ),
-        ),
-        ...items,
-      ],
+        ],
+      ),
     );
   }
 
@@ -215,23 +120,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
   }) {
     return GestureDetector(
       onTap: onTap,
-      child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+      child: Padding(
+        padding:
+        const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Row(
           children: [
-            Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: const Color(0xFF667EEA).withValues(alpha: 0.1),
-              ),
-              child: Icon(
-                icon,
-                color: const Color(0xFF667EEA),
-                size: 20,
-              ),
-            ),
+            _iconContainer(icon),
             const SizedBox(width: 16),
             Expanded(
               child: Column(
@@ -242,7 +136,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
-                      color: Color(0xFF2D3748),
                     ),
                   ),
                   const SizedBox(height: 4),
@@ -256,10 +149,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ],
               ),
             ),
-            Icon(
-              Icons.chevron_right,
-              color: Colors.grey[400],
-            ),
+            Icon(Icons.chevron_right, color: Colors.grey[400]),
           ],
         ),
       ),
@@ -273,23 +163,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
     required bool value,
     required ValueChanged<bool> onChanged,
   }) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+    return Padding(
+      padding:
+      const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
       child: Row(
         children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              color: const Color(0xFF667EEA).withValues(alpha: 0.1),
-            ),
-            child: Icon(
-              icon,
-              color: const Color(0xFF667EEA),
-              size: 20,
-            ),
-          ),
+          _iconContainer(icon),
           const SizedBox(width: 16),
           Expanded(
             child: Column(
@@ -300,7 +179,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: Color(0xFF2D3748),
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -323,5 +201,20 @@ class _SettingsScreenState extends State<SettingsScreen> {
       ),
     );
   }
-}
 
+  Widget _iconContainer(IconData icon) {
+    return Container(
+      width: 40,
+      height: 40,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: const Color(0xFF667EEA).withValues(alpha: 0.1),
+      ),
+      child: Icon(
+        icon,
+        color: const Color(0xFF667EEA),
+        size: 20,
+      ),
+    );
+  }
+}

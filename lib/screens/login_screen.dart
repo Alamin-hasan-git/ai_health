@@ -1,3 +1,4 @@
+import 'package:ai_health/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -73,7 +74,7 @@ class _LoginScreenState extends State<LoginScreen>
             colorText: Colors.white,
             duration: const Duration(seconds: 2),
           );
-          Get.offNamed('/home');
+          Get.offNamed(AppRoute.home);
         }
       } on FirebaseAuthException catch (e) {
         setState(() => _isLoading = false);
