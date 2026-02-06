@@ -15,7 +15,7 @@ void main() async {
   print('Firebase initialized');
   print(FirebaseAuth.instance.currentUser);
 
-  Get.put(AssessmentController());
+  Get.lazyPut(AssessmentController.new, fenix: true);
   runApp(const MyApp());
 }
 

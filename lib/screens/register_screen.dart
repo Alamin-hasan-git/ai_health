@@ -85,7 +85,6 @@ class _RegisterScreenState extends State<RegisterScreen>
           password: password,
         );
 
-        // Optionally update display name
         if (userCredential.user != null && _fullNameController.text.isNotEmpty) {
           await userCredential.user!.updateDisplayName(_fullNameController.text.trim());
         }
