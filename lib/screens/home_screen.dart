@@ -212,7 +212,7 @@ class _HomeScreenState extends State<HomeScreen> {
               _buildMoodOption('😢', 'Sad', const Color(0xFF3B82F6)),
               _buildMoodOption('😰', 'Anxious', const Color(0xFF8B5CF6)),
               _buildMoodOption('😠', 'Angry', const Color(0xFFEF4444)),
-              _buildMoodOption('🫩', 'Tired', const Color(0xFF10B981)),
+              _buildMoodOption('😩', 'Tired', const Color(0xFF10B981)),
             ],
           ),
         ],

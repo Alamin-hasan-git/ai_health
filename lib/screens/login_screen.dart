@@ -2,6 +2,7 @@ import 'package:ai_health/routes/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../controller/assesment_controller.dart';
 
@@ -59,8 +60,6 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _handleLogin() async {
-    final category = assessmentController.category.value;
-
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
@@ -71,18 +70,50 @@ class _LoginScreenState extends State<LoginScreen>
           password: password,
         );
         setState(() => _isLoading = false);
-        if (category.isEmpty) {
-          Get.offNamed(AppRoute.questions);
-        }else if (userCredential.user != null) {
-          Get.snackbar(
-            'Success',
-            'Logged in successfully!',
-            snackPosition: SnackPosition.BOTTOM,
-            backgroundColor: Colors.green.withOpacity(0.85),
-            colorText: Colors.white,
-            duration: const Duration(seconds: 2),
-          );
+
+        final user = userCredential.user;
+        if (user == null) return;
+
+        bool assessmentCompleted = false;
+        try {
+          final userDoc = await FirebaseFirestore.instance
+              .collection('users')
+              .doc(user.uid)
+              .get();
+
+          final data = userDoc.data();
+          assessmentCompleted =
+              userDoc.exists && (data?['assessment_completed'] ?? false) == true;
+
+          if (assessmentCompleted) {
+            final int score = (data?['current_score'] is int)
+                ? (data?['current_score'] as int)
+                : 0;
+            final String category = (data?['current_category'] is String)
+                ? (data?['current_category'] as String)
+                : '';
+
+            if (category.isNotEmpty) {
+              assessmentController.setResult(score, category);
+            }
+          }
+        } catch (_) {
+          assessmentCompleted = false;
+        }
+
+        Get.snackbar(
+          'Success',
+          'Logged in successfully!',
+          snackPosition: SnackPosition.BOTTOM,
+          backgroundColor: Colors.green.withOpacity(0.85),
+          colorText: Colors.white,
+          duration: const Duration(seconds: 2),
+        );
+
+        if (assessmentCompleted) {
           Get.offNamed(AppRoute.home);
+        } else {
+          Get.offNamed(AppRoute.questions);
         }
       } on FirebaseAuthException catch (e) {
         setState(() => _isLoading = false);
