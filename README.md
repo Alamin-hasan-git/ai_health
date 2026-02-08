@@ -1,16 +1,327 @@
-# ai_health
+# AI Health 🧠
 
-A new Flutter project.
+A Flutter-based AI-powered mental health companion app that uses Firebase (Auth + Firestore) and **Firebase AI (Gemini)** to provide supportive conversations, a short onboarding assessment, journaling, and a simple community chat.
 
-## Getting Started
+[![Dart SDK](https://img.shields.io/badge/Dart-^3.10.8-blue)](https://dart.dev)
+[![Flutter](https://img.shields.io/badge/Flutter-Compatible-blue)](https://flutter.dev)
+[![License](https://img.shields.io/badge/License-MIT-green)](LICENSE)
+[![Platform](https://img.shields.io/badge/Platform-Android%20%7C%20iOS%20%7C%20Web-blue)]()
 
-This project is a starting point for a Flutter application.
+## Disclaimer
 
-A few resources to get you started if this is your first Flutter project:
+This project is for educational/demo purposes and **is not a substitute for professional mental health care**.
+The AI assistant is designed to be supportive, but it does not diagnose conditions or prescribe treatment.
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+If you or someone else may be in immediate danger, contact your local emergency number.
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## 📋 Table of Contents
+
+- [Features](#features)
+- [Screenshots](#screenshots)
+- [Project Structure](#project-structure)
+- [Requirements](#requirements)
+- [Installation](#installation)
+- [Configuration](#configuration)
+- [Usage](#usage)
+- [Safety notes (AI Chat)](#safety-notes-ai-chat)
+- [Architecture](#architecture)
+- [Technologies](#technologies)
+- [Contributing](#contributing)
+- [License](#license)
+
+## ✨ Features
+
+- **AI Chat (mood-aware)**: Choose a mood and chat with an AI companion. The prompt is personalized using your assessment result.
+- **Crisis keyword detection**: If a message indicates self-harm intent, the app shows a crisis message and tries to open the phone dialer (default: `999`).
+- **Onboarding assessment**: A short questionnaire that assigns a narrative category + score.
+- **Journaling**: Create, update, and delete journal entries stored in Firestore.
+- **Community chat**: Simple global chat room backed by Firestore.
+- **Progress screen**: A basic progress dashboard UI.
+- **Memes feed**: A “need a laugh?” meme list section on the home screen.
+- **Authentication**: Email/password auth via Firebase.
+- **Cross-platform**: Runs on Android, iOS, and Web (with FlutterFire configuration).
+
+## 📸 Screenshots
+
+Add screenshots/gifs to showcase the UI:
+
+| Login | Home | AI Chat |
+| --- | --- | --- |
+| (screenshot) | (screenshot) | (screenshot) |
+
+## 📁 Project Structure
+
+```
+lib/
+├── agent/                 # AI agent integration logic
+├── const/                 # Constants and configurations
+├── controller/            # Business logic and state management
+│   ├── assesment_controller.dart
+│   └── journal_controller.dart
+├── models/                # Data models
+│   ├── journal_model.dart
+│   └── mood_config.dart
+├── routes/                # Navigation and routing
+├── screens/               # UI screens
+│   ├── splash_screen.dart
+│   ├── login_screen.dart
+│   ├── register_screen.dart
+│   ├── home_screen.dart
+│   ├── chat_screen.dart
+│   ├── community_chat.dart
+│   ├── journal.dart
+│   ├── progress_screen.dart
+│   ├── question_screen.dart
+│   └── settings_screen.dart
+├── widgets/               # Reusable UI components
+├── firebase_options.dart  # Firebase configuration (generated)
+└── main.dart              # Application entry point
+```
+
+## 🔧 Requirements
+
+- **Flutter SDK**: compatible with Dart `^3.10.8` (see `pubspec.yaml`)
+- **Dart**: `^3.10.8`
+- **Android**: Android 5.0 (API 21) or higher
+- **iOS**: iOS 11.0 or higher
+- **Firebase Project**: Firebase project with Authentication + Firestore enabled
+
+## 📦 Installation
+
+### 1. Clone the repository
+
+```bash
+git clone https://github.com/yourusername/ai_health.git
+cd ai_health
+```
+
+### 2. Install dependencies
+
+```bash
+flutter pub get
+```
+
+### 3. Configure Firebase (FlutterFire)
+
+Make sure you have the FlutterFire CLI installed, then run:
+
+```bash
+flutterfire configure
+```
+
+If you prefer platform-specific configuration:
+
+```bash
+flutterfire configure --platforms=android
+flutterfire configure --platforms=ios
+flutterfire configure --platforms=web
+```
+
+### 4. Enable Firebase services
+
+In Firebase Console, enable:
+
+- **Authentication**: Email/Password
+- **Cloud Firestore**
+
+For the AI chat:
+
+- **Firebase AI (Gemini)**: enable Firebase AI / Gemini for your Firebase project (as required by the `firebase_ai` package).
+
+### 5. Run the application
+
+```bash
+flutter run
+```
+
+## 🚀 Configuration
+
+### Firebase setup
+
+1. Create a Firebase project at https://console.firebase.google.com
+2. Enable:
+   - Authentication (Email/Password)
+   - Cloud Firestore
+   - Firebase AI (Gemini)
+3. Generate `lib/firebase_options.dart` using:
+
+```bash
+flutterfire configure
+```
+
+### Environment variables
+
+The app uses Firebase configuration from `firebase_options.dart` (generated by FlutterFire). No additional environment variables are needed after Firebase configuration.
+
+### Firestore data model (current)
+
+The app currently uses these collections:
+
+- `users/{uid}/journals/*`
+- `users/{uid}/assessments/*`
+- `rooms/global/messages/*`
+
+## 💻 Usage
+
+### Starting the app
+
+1. Launch the app (splash screen)
+2. Login / register
+3. If you haven’t completed the initial assessment yet, you’ll be routed to the questions screen
+4. Use the home screen to access:
+   - Mood-based AI chat
+   - Journal
+   - Community chat
+   - Progress
+   - Settings
+
+### Key workflows
+
+#### Mood → AI Chat
+
+```dart
+// Tap a mood (Sad/Anxious/Angry/Tired) on Home
+// You are taken to Chat and the assistant responds with a mood-aware opening message
+```
+
+#### Journaling
+
+```dart
+// Journal entries are stored under users/{uid}/journals
+// Create/update/delete entries from the Journal screen
+```
+
+#### Community Chat
+
+```dart
+// Open Community from Home
+// Messages are stored in Firestore under: rooms/global/messages
+```
+
+## 🔐 Safety notes (AI Chat)
+
+- The AI assistant is configured with guardrails (no diagnosis, no medication advice, one gentle follow-up question).
+- A basic crisis keyword check triggers a crisis message and attempts to open the dialer using `tel:999`.
+
+If you want a different emergency number, update it in `lib/agent/ai_chat_service.dart`.
+
+## 🏗️ Architecture
+
+The project uses **GetX** for routing and state management, with a simple separation of screens/controllers/models.
+
+### Model layer
+
+- Data models in `models/`
+
+### View layer
+
+- UI screens in `screens/`
+- Reusable UI components in `widgets/`
+
+### Controller layer
+
+- Business logic and state in `controller/` (GetX controllers)
+
+### Services
+
+- Firebase integration (Auth, Firestore)
+- AI integration via `firebase_ai` (Gemini)
+
+## 📚 Technologies
+
+### Core
+
+- Flutter
+- Dart
+
+### State management / routing
+
+- GetX (`get`)
+
+### Backend
+
+- Firebase Core
+- Firebase Auth
+- Cloud Firestore
+- Firebase AI (`firebase_ai`)
+
+### Utilities
+
+- `url_launcher`
+- `http`
+- `cached_network_image`
+
+## 📖 Getting started with development
+
+### Building for production
+
+#### Android
+
+```bash
+flutter build apk
+# or
+flutter build appbundle
+```
+
+#### iOS
+
+```bash
+flutter build ios
+```
+
+#### Web
+
+```bash
+flutter build web
+```
+
+### Running tests
+
+```bash
+flutter test
+```
+
+### Code analysis
+
+```bash
+flutter analyze
+```
+
+## 🆘 Support & Troubleshooting
+
+### Firebase configuration error
+
+```bash
+flutterfire configure
+```
+
+### Dependency issues
+
+```bash
+flutter clean
+flutter pub get
+```
+
+### Firestore permission errors
+
+If you see permission errors, verify:
+
+- Authentication is enabled and you are signed in
+- Your Firestore security rules allow the authenticated user to read/write their own `users/{uid}` subcollections
+
+## 🤝 Contributing
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m "Add amazing feature"`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
+
+## 📝 License
+
+This project is licensed under the MIT License - see the LICENSE file for details.
+
+---
+
+**Made with ❤️ for mental health awareness**
+
