@@ -38,7 +38,7 @@ class _CommunityChatState extends State<CommunityChat> {
     required String senderId,
     required bool isMe,
   }) {
-    final bg = isMe ? Colors.black : _avatarColor(senderId);
+    final bg = isMe ? Theme.of(context).colorScheme.primary : _avatarColor(senderId);
     final fg = Colors.white;
     final text = _avatarText(senderId: senderId, isMe: isMe);
 
@@ -50,7 +50,7 @@ class _CommunityChatState extends State<CommunityChat> {
         color: bg,
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.08),
+            color: Colors.black.withValues(alpha: 0.08),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -87,15 +87,17 @@ class _CommunityChatState extends State<CommunityChat> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF3F4F8),
+      backgroundColor: scheme.surface,
       appBar: AppBar(
         title: const Text(
           'Community',
           style: TextStyle(fontWeight: FontWeight.w600),
         ),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
         elevation: 0.5,
       ),
       body: Column(
@@ -143,7 +145,9 @@ class _CommunityChatState extends State<CommunityChat> {
                                 vertical: 10,
                               ),
                               decoration: BoxDecoration(
-                                color: isMe ? Colors.black : Colors.white,
+                                color: isMe
+                                    ? scheme.primary
+                                    : scheme.surfaceContainerHighest,
                                 borderRadius: BorderRadius.only(
                                   topLeft: const Radius.circular(18),
                                   topRight: const Radius.circular(18),
@@ -152,7 +156,7 @@ class _CommunityChatState extends State<CommunityChat> {
                                 ),
                                 boxShadow: [
                                   BoxShadow(
-                                    color: Colors.black.withOpacity(0.05),
+                                    color: Colors.black.withValues(alpha: 0.05),
                                     blurRadius: 10,
                                     offset: const Offset(0, 4),
                                   ),
@@ -161,7 +165,7 @@ class _CommunityChatState extends State<CommunityChat> {
                               child: Text(
                                 messageText,
                                 style: TextStyle(
-                                  color: isMe ? Colors.white : Colors.black87,
+                                  color: isMe ? scheme.onPrimary : scheme.onSurface,
                                   fontSize: 14.5,
                                   height: 1.4,
                                 ),
@@ -183,10 +187,10 @@ class _CommunityChatState extends State<CommunityChat> {
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),
             decoration: BoxDecoration(
-              color: Colors.white,
+              color: scheme.surface,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.black.withOpacity(0.04),
+                  color: Colors.black.withValues(alpha: 0.04),
                   blurRadius: 12,
                   offset: const Offset(0, -2),
                 ),
@@ -198,15 +202,16 @@ class _CommunityChatState extends State<CommunityChat> {
                   child: Container(
                     padding: const EdgeInsets.symmetric(horizontal: 14),
                     decoration: BoxDecoration(
-                      color: const Color(0xFFF1F2F6),
+                      color: scheme.surfaceContainerHighest,
                       borderRadius: BorderRadius.circular(30),
                     ),
                     child: TextField(
                       controller: _controller,
                       minLines: 1,
                       maxLines: 4,
-                      decoration: const InputDecoration(
+                      decoration: InputDecoration(
                         hintText: 'Type a message…',
+                        hintStyle: TextStyle(color: scheme.onSurfaceVariant),
                         border: InputBorder.none,
                       ),
                     ),
@@ -218,7 +223,7 @@ class _CommunityChatState extends State<CommunityChat> {
                   child: Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(
-                      color: Colors.black,
+                      color: scheme.primary,
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(

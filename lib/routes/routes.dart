@@ -1,6 +1,7 @@
 import 'package:ai_health/screens/journal.dart';
 import 'package:get/get.dart';
 
+import '../screens/profile_screen.dart';
 import '../screens/splash_screen.dart';
 import '../screens/login_screen.dart';
 import '../screens/register_screen.dart';
@@ -22,6 +23,7 @@ class AppRoute {
   static const String community_chat = '/community_chat';
   static const String questions = '/questions';
   static const String journal = '/journal';
+  static const String profile = '/profile';
 
   static final routes = [
     GetPage(name: initial, page: () => const SplashScreen()),
@@ -76,6 +78,12 @@ class AppRoute {
     GetPage(
       name: journal,
       page: () => JournalScreen(),
+      transition: Transition.rightToLeft,
+      transitionDuration: const Duration(milliseconds: 300),
+    ),
+    GetPage(
+      name: profile,
+      page: () => const ProfileScreen(),
       transition: Transition.rightToLeft,
       transitionDuration: const Duration(milliseconds: 300),
     ),

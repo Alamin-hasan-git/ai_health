@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:math';
 import 'package:ai_health/const/api_const.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/foundation.dart';
@@ -29,7 +30,10 @@ List<Meme> parseMemes(String body) {
   final decoded = jsonDecode(body);
   final List memes = decoded['data']['memes'];
 
-  return memes.take(10).map((e) => Meme.fromJson(e)).toList();
+  final shuffled = List<Map<String, dynamic>>.from(memes);
+  shuffled.shuffle(Random(DateTime.now().microsecondsSinceEpoch));
+
+  return shuffled.take(10).map((e) => Meme.fromJson(e)).toList();
 }
 
 /// =====================

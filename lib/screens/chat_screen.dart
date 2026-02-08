@@ -79,27 +79,31 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final textTheme = Theme.of(context).textTheme;
+
     return Scaffold(
-      backgroundColor: const Color(0xFFF6F7FB),
+      backgroundColor: scheme.surface,
       appBar: AppBar(
         elevation: 0,
-        backgroundColor: Colors.white,
-        title: const Text(
+        backgroundColor: scheme.surface,
+        foregroundColor: scheme.onSurface,
+        title: Text(
           'Chat',
           style: TextStyle(
-            color: Colors.black87,
+            color: scheme.onSurface,
             fontWeight: FontWeight.w600,
           ),
         ),
         centerTitle: false,
-        bottom: const PreferredSize(
+        bottom: PreferredSize(
           preferredSize: Size.fromHeight(26),
           child: Padding(
             padding: EdgeInsets.only(bottom: 8),
             child: Text(
               'A safe space to talk',
-              style: TextStyle(
-                color: Colors.black45,
+              style: textTheme.bodySmall?.copyWith(
+                color: scheme.onSurfaceVariant,
                 fontSize: 12,
               ),
             ),
@@ -127,6 +131,11 @@ class _ChatScreenState extends State<ChatScreen> {
 
   Widget _chatBubble(ChatMessage msg) {
     final isUser = msg.isUser;
+    final scheme = Theme.of(context).colorScheme;
+    final timeColor = Theme.of(context).colorScheme.onSurfaceVariant;
+
+    final userBubbleColor = scheme.primary;
+    final aiBubbleColor = scheme.surfaceContainerHighest;
 
     return Align(
       alignment: isUser ? Alignment.centerRight : Alignment.centerLeft,
@@ -140,7 +149,7 @@ class _ChatScreenState extends State<ChatScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               constraints: const BoxConstraints(maxWidth: 330),
               decoration: BoxDecoration(
-                color: isUser ? Colors.deepPurple : Colors.white,
+                color: isUser ? userBubbleColor : aiBubbleColor,
                 borderRadius: BorderRadius.only(
                   topLeft: const Radius.circular(20),
                   topRight: const Radius.circular(20),
@@ -151,7 +160,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
+                    color: Colors.black.withAlpha(200),
                     blurRadius: 8,
                     offset: const Offset(0, 3),
                   ),
@@ -160,7 +169,7 @@ class _ChatScreenState extends State<ChatScreen> {
               child: Text(
                 msg.text,
                 style: TextStyle(
-                  color: isUser ? Colors.white : Colors.black87,
+                  color: isUser ? scheme.onPrimary : scheme.onSurface,
                   fontSize: 15.5,
                   height: 1.45,
                 ),
@@ -169,9 +178,9 @@ class _ChatScreenState extends State<ChatScreen> {
             const SizedBox(height: 4),
             Text(
               _formatTime(msg.timestamp),
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 10,
-                color: Colors.black38,
+                color: timeColor,
               ),
             ),
           ],
@@ -181,6 +190,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   Widget _input() {
+    final scheme = Theme.of(context).colorScheme;
+
     return SafeArea(
       top: false,
       child: Padding(
@@ -188,11 +199,11 @@ class _ChatScreenState extends State<ChatScreen> {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
           decoration: BoxDecoration(
-            color: Colors.white,
+            color: scheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(28),
             boxShadow: [
               BoxShadow(
-                color: Colors.black.withOpacity(0.06),
+                color: Colors.black.withAlpha(200),
                 blurRadius: 12,
               ),
             ],
@@ -203,9 +214,9 @@ class _ChatScreenState extends State<ChatScreen> {
                 child: TextField(
                   controller: _controller,
                   maxLines: null,
-                  decoration: const InputDecoration(
+                  decoration: InputDecoration(
                     hintText: 'Type your message…',
-                    hintStyle: TextStyle(color: Colors.black38),
+                    hintStyle: TextStyle(color: scheme.onSurfaceVariant),
                     border: InputBorder.none,
                   ),
                 ),
@@ -215,8 +226,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 onTap: _send,
                 child: Container(
                   padding: const EdgeInsets.all(11),
-                  decoration: const BoxDecoration(
-                    color: Colors.deepPurple,
+                  decoration: BoxDecoration(
+                    color: scheme.primary,
                     shape: BoxShape.circle,
                   ),
                   child: const Icon(

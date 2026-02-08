@@ -1,4 +1,5 @@
 import 'package:ai_health/controller/journal_controller.dart';
+import 'package:ai_health/controller/theme_controller.dart';
 import 'package:ai_health/screens/splash_screen.dart';
 import 'package:ai_health/routes/routes.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -18,6 +19,7 @@ void main() async {
 
   Get.lazyPut(AssessmentController.new, fenix: true);
   Get.lazyPut(JournalController.new, fenix: true);
+  Get.put(ThemeController(), permanent: true);
   runApp(const MyApp());
 }
 
@@ -26,15 +28,28 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      title: 'AI Health',
-      debugShowCheckedModeBanner: false,
-      home: const SplashScreen(),
-      getPages: AppRoute.routes,
-      theme: ThemeData(
-        useMaterial3: true,
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF667EEA),
+    final themeController = Get.find<ThemeController>();
+
+    return Obx(
+      () => GetMaterialApp(
+        title: 'AI Health',
+        debugShowCheckedModeBanner: false,
+        home: const SplashScreen(),
+        getPages: AppRoute.routes,
+        themeMode: themeController.themeMode.value,
+        theme: ThemeData(
+          useMaterial3: true,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF667EEA),
+          ),
+        ),
+        darkTheme: ThemeData(
+          useMaterial3: true,
+          brightness: Brightness.dark,
+          colorScheme: ColorScheme.fromSeed(
+            seedColor: const Color(0xFF667EEA),
+            brightness: Brightness.dark,
+          ),
         ),
       ),
     );

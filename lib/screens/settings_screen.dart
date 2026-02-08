@@ -2,6 +2,9 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import '../controller/theme_controller.dart';
+import '../routes/routes.dart';
+
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
 
@@ -10,10 +13,10 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _darkModeEnabled = false;
-
   @override
   Widget build(BuildContext context) {
+    final themeController = Get.find<ThemeController>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Settings'),
@@ -39,19 +42,18 @@ class _SettingsScreenState extends State<SettingsScreen> {
             icon: Icons.person,
             title: 'Profile',
             subtitle: 'View or edit your profile',
-            onTap: () =>
-                Get.snackbar('Profile', 'Profile settings coming soon'),
+            onTap: () => Get.toNamed(AppRoute.profile),
           ),
 
           // Dark Mode
-          _buildToggleItem(
-            icon: Icons.dark_mode,
-            title: 'Dark Mode',
-            subtitle: 'Enable dark theme',
-            value: _darkModeEnabled,
-            onChanged: (value) {
-              setState(() => _darkModeEnabled = value);
-            },
+          Obx(
+            () => _buildToggleItem(
+              icon: Icons.dark_mode,
+              title: 'Dark Mode',
+              subtitle: 'Enable dark theme',
+              value: themeController.isDarkMode,
+              onChanged: themeController.setDarkMode,
+            ),
           ),
 
           const Spacer(),
