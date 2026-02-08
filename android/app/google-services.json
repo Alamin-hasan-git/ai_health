@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "986991921661",
+    "project_id": "ai-mental-75482",
+    "storage_bucket": "ai-mental-75482.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:986991921661:android:ada0a3284e713897c0f194",
+        "android_client_info": {
+          "package_name": "com.example.ai_health"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBC9xv7rAPY6z8ZxRH0H0DroOth96p9O1U"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
