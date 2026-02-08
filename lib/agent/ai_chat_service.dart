@@ -1,7 +1,9 @@
 import 'package:firebase_ai/firebase_ai.dart';
 import 'package:get/get.dart';
 import 'package:url_launcher/url_launcher.dart';
+
 import '../controller/assesment_controller.dart';
+import '../models/mood_config.dart';
 
 class AiChatService {
   final AssessmentController assessmentController =
@@ -10,6 +12,7 @@ class AiChatService {
   final GenerativeModel _model =
   FirebaseAI.googleAI().generativeModel(
     model: 'gemini-2.5-flash-lite',
+
   );
 
   final List<String> _crisisKeywords = [
@@ -18,13 +21,11 @@ class AiChatService {
     'end my life',
     'want to die',
     'no reason to live',
+    'hurt myself',
+    'self harm',
     'can’t go on',
     'cant go on',
-    'give up on life',
-    'self harm',
-    'hurt myself',
     'everything is pointless',
-    'i am done',
     'i want to disappear',
   ];
 
@@ -33,81 +34,81 @@ class AiChatService {
     return _crisisKeywords.any((k) => lower.contains(k));
   }
 
-  String _buildSystemPrompt() {
+  String _buildSystemPrompt(String moodKey) {
     final category = assessmentController.category.value;
     final score = assessmentController.totalScore.value;
+
+    final moodDirective =
+        moodMap[moodKey]?.systemDirective ?? '';
 
     return '''
 You are an AI mental health companion.
 
 User context:
-- Mental health category: $category
+- Narrative category: $category
 - Assessment score: $score
 
-Rules:
-- Be empathetic, calm, and non-judgmental
+Behavior rules:
+$moodDirective
+
+Global rules:
+- Be empathetic, calm, and human
 - Do NOT diagnose mental illness
 - Do NOT prescribe medication
-- Use simple, human language
-- Ask gentle follow-up questions
-- Never encourage dependency on AI
-- If self-harm or suicide appears, escalate immediately
+- Do NOT present yourself as the only support
+- Ask only ONE gentle follow-up question
+- Use simple, everyday language
+- If self-harm appears, follow crisis protocol
 ''';
   }
 
-  Future<void> _forceOpenDialer() async {
+  Future<void> _openDialer() async {
     final uri = Uri.parse('tel:999');
-
     if (await canLaunchUrl(uri)) {
-      await launchUrl(
-        uri,
-        mode: LaunchMode.externalApplication,
-      );
+      await launchUrl(uri, mode: LaunchMode.externalApplication);
     }
   }
 
   Future<String> sendMessage({
     required String userMessage,
-    required String feelingPrompt,
+    required String moodKey,
     required List<String> history,
   }) async {
-    // 🚨 CRISIS PATH
     if (_isCrisisMessage(userMessage)) {
-      // 🔥 FORCE DIALER IMMEDIATELY
-      _forceOpenDialer();
-
+      _openDialer();
       return '''
-I’m really glad you reached out.
+I’m really glad you told me this.
 
-What you’re feeling is serious, and you deserve immediate help.
-I’ve opened your phone dialer now.
+When someone says things like that, it can mean they’re feeling overwhelmed or unsafe.
+Before we go further, I need to ask something important:3
 
-📞 Please call **999** or go to the nearest emergency service.
-You matter, and help is available right now.
+👉 Are you feeling at risk of hurting yourself right now?
+
+If yes, please contact **999** or go to the nearest emergency service.
+If you can, tell me whether someone nearby can help support you.
 ''';
     }
 
-    final systemPrompt = _buildSystemPrompt();
+    final systemPrompt = _buildSystemPrompt(moodKey);
 
     final fullPrompt = '''
 $systemPrompt
 
-USER EMOTIONAL CONTEXT:
-$feelingPrompt
-
-CONVERSATION HISTORY:
+Conversation so far:
 ${history.join('\n')}
 
-USER MESSAGE:
+User message:
 $userMessage
 ''';
 
     try {
       final response =
-      await _model.generateContent([Content.text(fullPrompt)]);
+      await _model.generateContent(
+        [Content.text(fullPrompt)],
+      );
 
       return response.text?.trim() ??
-          'I’m here with you. Can you tell me more?';
+          'I’m here with you. Can you tell me a little more?';
     } catch (_) {
       return 'I’m here with you. Let’s take this one step at a time.';
     }

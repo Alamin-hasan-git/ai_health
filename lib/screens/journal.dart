@@ -120,7 +120,6 @@ class JournalScreen extends StatelessWidget {
     );
   }
 
-  // ───────────────── JOURNAL LIST ─────────────────
 
   Widget _journalList() {
     return Obx(() {
@@ -148,7 +147,6 @@ class JournalScreen extends StatelessWidget {
     });
   }
 
-  // ───────────────── JOURNAL CARD ─────────────────
 
   Widget _journalCard(JournalEntry entry) {
     return Container(
@@ -204,7 +202,6 @@ class JournalScreen extends StatelessWidget {
     );
   }
 
-  // ───────────────── EDIT JOURNAL ─────────────────
 
   void _openEditSheet(JournalEntry entry) {
     final editController = TextEditingController(text: entry.text);
@@ -270,8 +267,6 @@ class JournalScreen extends StatelessWidget {
     );
   }
 
-  // ───────────────── DELETE CONFIRMATION ─────────────────
-
   void _confirmDelete(JournalEntry entry) {
     Get.defaultDialog(
       title: 'Delete entry?',
@@ -286,7 +281,6 @@ class JournalScreen extends StatelessWidget {
     );
   }
 
-  // ───────────────── DATE FORMAT ─────────────────
 
   String _formatDate(DateTime date) {
     return '${date.day}/${date.month}/${date.year} • '

@@ -99,7 +99,7 @@ class _QuestionScreenState extends State<QuestionScreen>
     setState(() {
       _isAnswering = true;
       _totalScore += score;
-      _selectedAnswers.add(optionIndex); // Store which option was selected
+      _selectedAnswers.add(optionIndex);
     });
 
     await Future.delayed(const Duration(milliseconds: 600));
@@ -152,7 +152,7 @@ class _QuestionScreenState extends State<QuestionScreen>
     }
     assessmentController.setResult(_totalScore, category);
 
-    // Build detailed answer records
+
     final answers = <Map<String, dynamic>>[];
     for (int i = 0; i < _questions.length; i++) {
       final selectedOptionIndex = _selectedAnswers.length > i ? _selectedAnswers[i] : -1;

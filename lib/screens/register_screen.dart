@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../routes/routes.dart';
+
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
 
@@ -98,7 +100,7 @@ class _RegisterScreenState extends State<RegisterScreen>
           colorText: Colors.white,
           duration: const Duration(seconds: 2),
         );
-        Get.offNamed('/home');
+        Get.offNamed(AppRoute.login);
       } on FirebaseAuthException catch (e) {
         setState(() => _isLoading = false);
         String message = 'Registration failed. Please try again.';

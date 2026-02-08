@@ -111,7 +111,6 @@ class _CommunityChatState extends State<CommunityChat> {
             ),
           ),
 
-          // ───────────── INPUT BAR ─────────────
 
           Container(
             padding: const EdgeInsets.fromLTRB(12, 8, 12, 12),

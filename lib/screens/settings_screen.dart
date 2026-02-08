@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -71,8 +72,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                         child: const Text('Cancel'),
                       ),
                       TextButton(
-                        onPressed: () {
+                        onPressed: () async{
                           Get.back();
+                          await FirebaseAuth.instance.signOut();
                           Get.offNamed('/login');
                         },
                         child: const Text(

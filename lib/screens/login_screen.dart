@@ -3,6 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import '../controller/assesment_controller.dart';
+
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -12,6 +14,8 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen>
     with SingleTickerProviderStateMixin {
+  final AssessmentController assessmentController =
+  Get.find<AssessmentController>();
   late AnimationController _animationController;
   late Animation<Offset> _slideAnimation;
   late Animation<double> _fadeAnimation;
@@ -55,6 +59,8 @@ class _LoginScreenState extends State<LoginScreen>
   }
 
   Future<void> _handleLogin() async {
+    final category = assessmentController.category.value;
+
     if (_formKey.currentState!.validate()) {
       setState(() => _isLoading = true);
       try {
@@ -65,7 +71,9 @@ class _LoginScreenState extends State<LoginScreen>
           password: password,
         );
         setState(() => _isLoading = false);
-        if (userCredential.user != null) {
+        if (category.isEmpty) {
+          Get.offNamed(AppRoute.questions);
+        }else if (userCredential.user != null) {
           Get.snackbar(
             'Success',
             'Logged in successfully!',
