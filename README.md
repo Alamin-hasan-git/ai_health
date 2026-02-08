@@ -46,8 +46,8 @@ If you or someone else may be in immediate danger, contact your local emergency 
 Add screenshots/gifs to showcase the UI:
 
 | Login | Home | AI Chat |
-| --- | --- | --- |
-| (screenshot) | (screenshot) | (screenshot) |
+| --- |  | --- |
+| ![Screenshot_20260208_141312.png](asset/pictures/Screenshot_20260208_141312.png) | ![Screenshot_20260208_141237.png](asset/pictures/Screenshot_20260208_141237.png) | ![Screenshot_20260208_141254.png](asset/pictures/Screenshot_20260208_141254.png)(screenshot) |
 
 ## 📁 Project Structure
 
